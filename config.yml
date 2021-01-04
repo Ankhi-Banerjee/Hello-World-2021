@@ -5,9 +5,46 @@ orbs:
   # Declare a dependency on the welcome-orb
   welcome: circleci/welcome-orb@0.4.1
 # Orchestrate or schedule a set of jobs
+jobs:
+  job1:
+    docker:
+    # Primary container image where all steps run.
+     - image: buildpack-deps:trusty
+    # Secondary container image on common network. 
+     - image: circleci/node:13.8.0
+       command: [mongod, --smallfiles]
+
+    working_directory: ~/
+
+    steps:
+      # command will execute in trusty container
+      # and can access mongo on localhost
+      - run: Write-Host 'Hello'
+
+jobs:
+  job2:
+    docker:
+    # Primary container image where all steps run.
+     - image: buildpack-deps:trusty
+    # Secondary container image on common network. 
+     - image: circleci/node:13.8.0
+       command: [mongod, --smallfiles]
+
+    working_directory: ~/
+
+    steps:
+      # command will execute in trusty container
+      # and can access mongo on localhost
+      - run: Write-Host 'World'
+ 
 workflows:
   # Name the workflow "welcome"
   welcome:
     # Run the welcome/run job in its own container
     jobs:
-      - welcome/run
+        job1:
+          - welcome/run
+        job2:
+            requires:
+                -job1
+        
